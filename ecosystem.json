@@ -1,0 +1,9 @@
+{
+    "apps" : [{
+        "name": "probe-stock-market",
+        "script": "app/server.js",
+        "instances": "1",
+        "error_file": "/var/log/error.log",
+        "out_file": "/var/log/server.log"
+    }]
+}
