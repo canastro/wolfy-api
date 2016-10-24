@@ -14,7 +14,10 @@ const winstonDailyRotateFile = require('winston-daily-rotate-file');
 const boot = require('./boot');
 const WolfyModels = require('wolfy-models');
 
-boot('mongodb://localhost/stocks', {
+const API_PORT = process.env.API_PORT || 8080;
+const DB_NAME = process.env.DB_NAME || 'stocks';
+
+boot(`mongodb://localhost/${DB_NAME}`, {
     env: 'development'
 });
 
@@ -43,8 +46,6 @@ app.use('/graphqlv2', graphqlHTTP({
     schema: WolfyModels.graphQLSchema
 }));
 
-const port = process.env.PORT || 8080;
-
 // START THE SERVER
-app.listen(port);
-winston.info(`Server started on ${port}`);
+app.listen(API_PORT);
+winston.info(`Server started on ${API_PORT}`);
