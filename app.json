@@ -1,5 +1,5 @@
 {
     "name": "wolfy-api",
     "script": "/home/ubuntu/wolfy-api/current/src/server.js",
-    "watch": true
+    "watch": false
 }
