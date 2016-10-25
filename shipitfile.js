@@ -1,15 +1,15 @@
+const name = 'wolfy-api';
+const deployTo = `/home/ubuntu/${name}`;
+const deployToCurrent = `${deployTo}/current`;
+
 module.exports = function (shipit) {
     require('shipit-deploy')(shipit);
-    require('shipit-pm2')(shipit);
-
-    const deployTo = '/home/ubuntu/wolfy-api';
-    const deployToCurrent = `${deployTo}/current`;
 
     shipit.initConfig({
         default: {
-            workspace: '/Users/ricardocanastro/shipit-workspace/wolfy-api',
+            workspace: `/Users/ricardocanastro/shipit-workspace/${name}`,
             deployTo,
-            repositoryUrl: 'https://github.com/canastro/wolfy-api.git',
+            repositoryUrl: `https://github.com/canastro/${name}.git`,
             ignores: ['.git', 'node_modules'],
             keepReleases: 5,
             deleteOnRollback: false,
@@ -26,7 +26,7 @@ module.exports = function (shipit) {
         shipit.start('post-publish');
     });
 
-    shipit.task('post-publish', ['clear-nodemodules', 'npm-install', 'pm2-save']);
+    shipit.task('post-publish', ['clear-nodemodules', 'npm-install', 'pm2-start', 'pm2-save']);
 
     // npm install
     // ----------------------------------------------------------------
@@ -40,6 +40,10 @@ module.exports = function (shipit) {
 
     // pm2 commands
     // ----------------------------------------------------------------
+    shipit.task('pm2-start', function () {
+        return shipit.remote(`pm2 start ${deployToCurrent}/app.json`);
+    });
+
     shipit.task('pm2-save', function () {
         return shipit.remote('pm2 save');
     });
