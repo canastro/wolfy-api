@@ -26,7 +26,7 @@ module.exports = function (shipit) {
         shipit.start('post-publish');
     });
 
-    shipit.task('post-publish', ['clear-nodemodules', 'npm-install', 'pm2-start', 'pm2-save']);
+    shipit.task('post-publish', ['clear-nodemodules', 'npm-install', 'npm-link', 'pm2-start', 'pm2-save']);
 
     // npm install
     // ----------------------------------------------------------------
@@ -38,9 +38,13 @@ module.exports = function (shipit) {
         return shipit.remote(`cd ${deployToCurrent} && npm install`);
     });
 
+    shipit.blTask('npm-link', function(){
+        return shipit.remote(`cd ${deployToCurrent} && npm link talib && npm link zmq`);
+    });
+
     // pm2 commands
     // ----------------------------------------------------------------
-    shipit.task('pm2-start', function () {
+    shipit.blTask('pm2-start', function () {
         return shipit.remote(`pm2 start ${deployToCurrent}/app.json`);
     });
 
