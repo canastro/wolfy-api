@@ -30,25 +30,25 @@ module.exports = function (shipit) {
 
     // npm install
     // ----------------------------------------------------------------
-    shipit.blTask('clear-nodemodules', function(){
-        return shipit.remote(`cd ${deployToCurrent} && rm -rf node_modules`);
-    });
+    shipit.blTask('clear-nodemodules', () =>
+        shipit.remote(`cd ${deployToCurrent} && rm -rf node_modules`)
+    );
 
-    shipit.blTask('npm-install', function(){
-        return shipit.remote(`cd ${deployToCurrent} && npm install`);
-    });
+    shipit.blTask('npm-install', () =>
+        shipit.remote(`cd ${deployToCurrent} && npm install`)
+    );
 
-    shipit.blTask('npm-link', function(){
-        return shipit.remote(`cd ${deployToCurrent} && npm link talib && npm link zmq`);
-    });
+    shipit.blTask('npm-link', () =>
+        shipit.remote(`cd ${deployToCurrent} && npm link talib && npm link zmq`)
+    );
 
     // pm2 commands
     // ----------------------------------------------------------------
-    shipit.blTask('pm2-start', function () {
-        return shipit.remote(`pm2 start ${deployToCurrent}/app.json`);
-    });
+    shipit.blTask('pm2-start', () =>
+        shipit.remote(`pm2 start ${deployToCurrent}/app.json`)
+    );
 
-    shipit.task('pm2-save', function () {
-        return shipit.remote('pm2 save');
-    });
+    shipit.task('pm2-save', () =>
+        shipit.remote('pm2 save')
+    );
 };

@@ -15,7 +15,7 @@ const boot = require('./boot');
 const WolfyModels = require('wolfy-models');
 
 const API_PORT = process.env.API_PORT || 8080;
-const DB_NAME = process.env.DB_NAME || 'stocks';
+const DB_NAME = process.env.DB_NAME || 'wolfy';
 
 boot(`mongodb://localhost/${DB_NAME}`, {
     env: 'development'
