@@ -6,16 +6,17 @@ require('babel-polyfill');
 const cors = require('cors');
 const winston = require('winston');
 const express = require('express');
-const graphqlHTTP = require('express-graphql');
+const graphql = require('express-graphql');
 const json = require('body-parser').json;
-const graffiti = require('@risingstack/graffiti');
 const winstonDailyRotateFile = require('winston-daily-rotate-file');
 
 const boot = require('./boot');
-const WolfyModels = require('wolfy-models');
+const apiV2 = require('./api/v2');
 
 const API_PORT = process.env.API_PORT || 8080;
 const DB_NAME = process.env.DB_NAME || 'wolfy';
+
+console.log('process.env.DB_NAME: ', process.env.DB_NAME);
 
 boot(`mongodb://localhost/${DB_NAME}`, {
     env: 'development'
@@ -37,13 +38,17 @@ const app = express();
 app.use(cors());
 app.use(express.static(__dirname));
 app.use(json());
-app.use(graffiti.express({
-    schema: WolfyModels.graffitiSchema,
-    allowMongoIDMutation: false
-}));
+// app.use(graffiti.express({
+//     schema: WolfyModels.graffitiSchema,
+//     allowMongoIDMutation: false
+// }));
+//
+// app.use('/graphqlv2', graphqlHTTP({
+//     schema: WolfyModels.graphQLSchema
+// }));
 
-app.use('/graphqlv2', graphqlHTTP({
-    schema: WolfyModels.graphQLSchema
+app.use('/api/v2', graphql({
+    schema: apiV2
 }));
 
 // START THE SERVER
