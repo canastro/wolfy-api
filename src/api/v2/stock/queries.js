@@ -1,21 +1,11 @@
 const {
-    GraphQLObjectType,
     GraphQLString,
     GraphQLList
 } = require('graphql');
 
 const Stock = require('wolfy-models/src/schema/stock');
-
+const StockType = require('../types/stock');
 const getProjection = require('../utils/get-projection');
-
-const StockType = new GraphQLObjectType({
-    name: 'Stock',
-    fields: {
-        _id: { type: GraphQLString },
-        symbol: { type: GraphQLString },
-        name: { type: GraphQLString }
-    }
-});
 
 module.exports = {
     stocks: {

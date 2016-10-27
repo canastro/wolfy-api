@@ -6,14 +6,21 @@ const {
 
 const OrderQueries = require('./order/queries');
 const SentimentReportQueries = require('./sentiment-report/queries');
+
 const StockQueries = require('./stock/queries');
+const StockMutations = require('./stock/mutations');
 
 const queries = Object.assign({}, OrderQueries, SentimentReportQueries, StockQueries);
+const mutations = Object.assign({}, StockMutations);
 
 const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
-        name: 'RootQueryType',
+        name: 'Query',
         fields: queries
+    }),
+    mutation: new GraphQLObjectType({
+        name: 'Mutation',
+        fields: mutations
     })
 });
 

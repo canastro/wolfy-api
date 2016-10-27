@@ -1,45 +1,73 @@
 const {
     GraphQLObjectType,
-    GraphQLInt,
-    GraphQLString,
-    GraphQLList
+    GraphQLList,
+    GraphQLNonNull,
+    GraphQLString
 } = require('graphql');
-
-const GraphQLDate = require('graphql-date');
 
 const SentimentReport = require('wolfy-models/src/schema/sentiment-report');
 
-const getProjection = require('../utils/get-projection');
+const { getFilter, applyPagination } = require('../utils/pagination');
+const ViewerType = require('../types/pagination/viewer');
+const Cursor = require('../types/pagination/cursor');
+const PageInfo = require('../types/pagination/page-info');
+// const getProjection = require('../utils/get-projection');
 
-const SentimentReportType = new GraphQLObjectType({
-    name: 'SentimentReport',
-    fields: {
-        _id: { type: GraphQLString },
-        symbol: { type: GraphQLString },
-        type: { type: GraphQLString },
-        date: { type: GraphQLDate },
+const SentimentReportType = require('../types/reports/sentiment');
 
-        articles_sentiment: { type: GraphQLInt },
-        articles_volume: { type: GraphQLInt },
+const getQuery = (filter, order) => SentimentReport.find(filter).sort([['_id', order]]);
 
-        tweet_relative_sentiment: { type: GraphQLInt },
-        tweet_absolute_sentiment: { type: GraphQLInt },
-        tweet_volume: { type: GraphQLInt }
-    }
+function getReports({ symbol, first, last, before, after }, order) {
+    const filter = getFilter(symbol, before, after, order);
+    const query = getQuery(filter, order);
+
+    return SentimentReport.find(filter).count().then(count => {
+        const pageInfo = applyPagination(query, count, first, last);
+        return pageInfo.query.exec().then((results) => ({
+            query: results,
+            pageInfo: {
+                hasNextPage: pageInfo.hasNextPage,
+                hasPreviousPage: pageInfo.hasPreviousPage
+            }
+        }));
+    });
+}
+
+const ReportEdge = new GraphQLObjectType({
+    name: 'ReportEdge',
+    fields: () => ({
+        cursor: {
+            type: Cursor,
+            resolve: (parent) => ({ value: parent._id.toString() })
+        },
+        node: {
+            type: SentimentReportType,
+            resolve: (parent) => parent
+        },
+    }),
+});
+
+const ReportConnection = new GraphQLObjectType({
+    name: 'ReportConnection',
+    fields: () => ({
+        edges: {
+            type: new GraphQLList(ReportEdge),
+            resolve: (parent) => parent.query
+        },
+        pageInfo: {
+            type: new GraphQLNonNull(PageInfo),
+        },
+    }),
 });
 
 module.exports = {
     sentimentreports: {
-        type: new GraphQLList(SentimentReportType),
-        args: {
-            symbol: {
-                name: 'symbol',
-                type: GraphQLString
-            }
-        },
-        resolve(parent, args, context, info) {
-            const projection = getProjection(info);
-            return SentimentReport.find({ symbol: args.symbol }).select(projection).exec();
-        }
+        type: ViewerType(
+            'reports',
+            { symbol: { type: GraphQLString } },
+            ReportConnection,
+            getReports
+        ),
+        resolve: () => ({ id: 'VIEWER_ID' })
     }
 };
