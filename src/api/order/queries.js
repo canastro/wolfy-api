@@ -1,44 +1,46 @@
 const {
-    GraphQLObjectType,
     GraphQLInt,
-    GraphQLString,
-    GraphQLFloat,
-    GraphQLBoolean,
-    GraphQLList
+    GraphQLString
 } = require('graphql');
-
-const GraphQLDate = require('graphql-date');
 
 const Order = require('wolfy-models/src/schema/order');
 
-const getProjection = require('../utils/get-projection');
+const OrderType = require('../types/orders/order');
+const { getFilter, applyPagination } = require('../utils/pagination');
+const EdgeType = require('../types/pagination/edge');
+const ConnectionType = require('../types/pagination/connection');
+const Cursor = require('../types/pagination/cursor');
 
-const OrderType = new GraphQLObjectType({
-    name: 'Order',
-    fields: {
-        _id: { type: GraphQLString },
-        symbol: { type: GraphQLString },
-        date: { type: GraphQLDate },
-        amount: { type: GraphQLInt },
-        value: { type: GraphQLFloat },
-        type: { type: GraphQLString },
-        isActive: { type: GraphQLBoolean }
-    }
-});
+function getOrders({ symbol, first, last, before, after }, order) {
+    const filter = getFilter(symbol, before, after, order);
+    const query = Order.find(filter).sort([['_id', order]]);
+
+    return Order.find(filter).count().then(count => {
+        const pageInfo = applyPagination(query, count, first, last);
+        return pageInfo.query.exec().then((results) => ({
+            query: results,
+            pageInfo: {
+                hasNextPage: pageInfo.hasNextPage,
+                hasPreviousPage: pageInfo.hasPreviousPage
+            }
+        }));
+    });
+}
+
+const OrderEdge = EdgeType('OrderEdge', OrderType);
+const OrderConnection = ConnectionType('OrderConnection', OrderEdge);
 
 module.exports = {
     orders: {
-        type: new GraphQLList(OrderType),
+        type: OrderConnection,
         args: {
-            symbol: {
-                name: 'symbol',
-                type: GraphQLString
-            }
+            first: { type: GraphQLInt },
+            last: { type: GraphQLInt },
+            before: { type: Cursor },
+            after: { type: Cursor },
+            symbol: { type: GraphQLString }
         },
-        resolve(parent, args, context, info) {
-            const projection = getProjection(info);
-            return Order.find({ symbol: args.symbol }).select(projection).exec();
-        }
+        resolve: (parent, args) => getOrders(args, -1)
     },
     balance: {
         type: GraphQLInt,

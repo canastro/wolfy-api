@@ -12,11 +12,9 @@ const Cursor = require('../types/pagination/cursor');
 
 const SentimentReportType = require('../types/reports/sentiment');
 
-const getQuery = (filter, order) => SentimentReport.find(filter).sort([['_id', order]]);
-
 function getReports({ symbol, first, last, before, after }, order) {
     const filter = getFilter(symbol, before, after, order);
-    const query = getQuery(filter, order);
+    const query = SentimentReport.find(filter).sort([['_id', order]]);
 
     return SentimentReport.find(filter).count().then(count => {
         const pageInfo = applyPagination(query, count, first, last);

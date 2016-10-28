@@ -12,11 +12,9 @@ const Cursor = require('../types/pagination/cursor');
 
 const PriceType = require('../types/prices/price');
 
-const getQuery = (filter, order) => Price.find(filter).sort([['_id', order]]);
-
 function getPrices({ symbol, first, last, before, after }, order) {
     const filter = getFilter(symbol, before, after, order);
-    const query = getQuery(filter, order);
+    const query = Price.find(filter).sort([['_id', order]]);
 
     return Price.find(filter).count().then(count => {
         const pageInfo = applyPagination(query, count, first, last);
