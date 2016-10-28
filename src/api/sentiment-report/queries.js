@@ -39,7 +39,8 @@ module.exports = {
             last: { type: GraphQLInt },
             before: { type: Cursor },
             after: { type: Cursor },
-            symbol: { type: GraphQLString }
+            symbol: { type: GraphQLString },
+            type: { type: GraphQLString }
         },
         resolve: (parent, args) => getReports(args, -1)
     }
