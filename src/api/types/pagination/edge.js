@@ -11,7 +11,7 @@ module.exports = (name, type) => new GraphQLObjectType({
             resolve: (parent) => ({ value: parent._id.toString() })
         },
         node: {
-            type: type,
+            type,
             resolve: (parent) => parent
         },
     }),

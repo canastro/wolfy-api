@@ -1,13 +1,14 @@
 const {
-    GraphQLString
+    GraphQLString,
+    GraphQLInt
 } = require('graphql');
 
 const Price = require('wolfy-models/src/schema/price');
 
 const { getFilter, applyPagination } = require('../utils/pagination');
-const ViewerType = require('../types/pagination/viewer');
 const EdgeType = require('../types/pagination/edge');
 const ConnectionType = require('../types/pagination/connection');
+const Cursor = require('../types/pagination/cursor');
 
 const PriceType = require('../types/prices/price');
 
@@ -31,17 +32,17 @@ function getPrices({ symbol, first, last, before, after }, order) {
 
 const PriceEdge = EdgeType('PriceEdge', PriceType);
 const PriceConnection = ConnectionType('PriceConnection', PriceEdge);
-const Viewer = ViewerType(
-    'PriceViewer',
-    'prices',
-    { symbol: { type: GraphQLString } },
-    PriceConnection,
-    getPrices
-);
 
 module.exports = {
     prices: {
-        type: Viewer,
-        resolve: () => ({ id: 'VIEWER_ID' })
+        type: PriceConnection,
+        args: {
+            first: { type: GraphQLInt },
+            last: { type: GraphQLInt },
+            before: { type: Cursor },
+            after: { type: Cursor },
+            symbol: { type: GraphQLString }
+        },
+        resolve: (parent, args) => getPrices(args, -1)
     }
 };
