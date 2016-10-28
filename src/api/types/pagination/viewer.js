@@ -21,8 +21,8 @@ const defaultArgs = {
     },
 };
 
-module.exports = (name, args = {}, Connection, callback) => new GraphQLObjectType({
-    name: 'Viewer',
+module.exports = (viewerName, name, args = {}, Connection, callback) => new GraphQLObjectType({
+    name: viewerName,
     fields: () => ({
         id: {
             type: new GraphQLNonNull(GraphQLID),

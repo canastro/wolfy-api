@@ -1,7 +1,4 @@
 const {
-    GraphQLObjectType,
-    GraphQLList,
-    GraphQLNonNull,
     GraphQLString
 } = require('graphql');
 
@@ -9,9 +6,8 @@ const SentimentReport = require('wolfy-models/src/schema/sentiment-report');
 
 const { getFilter, applyPagination } = require('../utils/pagination');
 const ViewerType = require('../types/pagination/viewer');
-const Cursor = require('../types/pagination/cursor');
-const PageInfo = require('../types/pagination/page-info');
-// const getProjection = require('../utils/get-projection');
+const EdgeType = require('../types/pagination/edge');
+const ConnectionType = require('../types/pagination/connection');
 
 const SentimentReportType = require('../types/reports/sentiment');
 
@@ -33,41 +29,19 @@ function getReports({ symbol, first, last, before, after }, order) {
     });
 }
 
-const ReportEdge = new GraphQLObjectType({
-    name: 'ReportEdge',
-    fields: () => ({
-        cursor: {
-            type: Cursor,
-            resolve: (parent) => ({ value: parent._id.toString() })
-        },
-        node: {
-            type: SentimentReportType,
-            resolve: (parent) => parent
-        },
-    }),
-});
-
-const ReportConnection = new GraphQLObjectType({
-    name: 'ReportConnection',
-    fields: () => ({
-        edges: {
-            type: new GraphQLList(ReportEdge),
-            resolve: (parent) => parent.query
-        },
-        pageInfo: {
-            type: new GraphQLNonNull(PageInfo),
-        },
-    }),
-});
+const ReportEdge = EdgeType('ReportEdge', SentimentReportType);
+const ReportConnection = ConnectionType('ReportConnection', ReportEdge);
+const Viewer = ViewerType(
+    'ReportViewer',
+    'reports',
+    { symbol: { type: GraphQLString } },
+    ReportConnection,
+    getReports
+);
 
 module.exports = {
     sentimentreports: {
-        type: ViewerType(
-            'reports',
-            { symbol: { type: GraphQLString } },
-            ReportConnection,
-            getReports
-        ),
+        type: Viewer,
         resolve: () => ({ id: 'VIEWER_ID' })
     }
 };

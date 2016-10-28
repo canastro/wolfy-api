@@ -11,7 +11,7 @@ const json = require('body-parser').json;
 const winstonDailyRotateFile = require('winston-daily-rotate-file');
 
 const boot = require('./boot');
-const apiV2 = require('./api/v2');
+const apiV2 = require('./api');
 
 const API_PORT = process.env.API_PORT || 8080;
 const DB_NAME = process.env.DB_NAME || 'wolfy';
@@ -47,7 +47,7 @@ app.use(json());
 //     schema: WolfyModels.graphQLSchema
 // }));
 
-app.use('/api/v2', graphql({
+app.use('/api/graphql', graphql({
     schema: apiV2
 }));
 
