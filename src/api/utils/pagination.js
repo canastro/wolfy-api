@@ -2,8 +2,12 @@
 
 const { ObjectId } = require('mongodb');
 
-exports.getFilter = (symbol, before, after, order) => {
-    const filter = { _id: {}, symbol };
+exports.getFilter = (before, after, order, other) => {
+    const filter = Object.assign(
+        {},
+        { _id: {}},
+        other
+    );
 
     if (before) {
         const op = order === 1 ? '$lt' : '$gt';
@@ -15,7 +19,7 @@ exports.getFilter = (symbol, before, after, order) => {
         filter._id[op] = ObjectId(after.value);
     }
 
-    return Object.keys(filter._id).length ? filter : { symbol };
+    return Object.keys(filter._id).length ? filter : other;
 };
 
 exports.applyPagination = (query, count, first, last) => {

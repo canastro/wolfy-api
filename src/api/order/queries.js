@@ -12,7 +12,7 @@ const ConnectionType = require('../types/pagination/connection');
 const Cursor = require('../types/pagination/cursor');
 
 function getOrders({ symbol, first, last, before, after }, order) {
-    const filter = getFilter(symbol, before, after, order);
+    const filter = getFilter(before, after, order, { symbol });
     const query = Order.find(filter).sort([['_id', order]]);
 
     return Order.find(filter).count().then(count => {
