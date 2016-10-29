@@ -8,12 +8,19 @@ const OrderQueries = require('./order/queries');
 const SentimentReportQueries = require('./sentiment-report/queries');
 const PriceQueries = require('./price/queries');
 const StatisticsQueries = require('./statistics/queries');
+const TweetQueries = require('./tweet/queries');
 
 const StockQueries = require('./stock/queries');
 const StockMutations = require('./stock/mutations');
 
 const queries = Object.assign(
-    {}, StatisticsQueries, OrderQueries, SentimentReportQueries, StockQueries, PriceQueries
+    {},
+    StatisticsQueries,
+    OrderQueries,
+    SentimentReportQueries,
+    StockQueries, 
+    PriceQueries,
+    TweetQueries
 );
 const mutations = Object.assign({}, StockMutations);
 
