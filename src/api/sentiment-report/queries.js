@@ -13,7 +13,7 @@ const Cursor = require('../types/pagination/cursor');
 const SentimentReportType = require('../types/reports/sentiment');
 
 function getReports({ symbol, type, first, last, before, after }, order) {
-    const filter = getFilter(before, after, order, { symbol, type });
+    const filter = getFilter(before, after, order, { symbol: symbol.toUpperCase(), type });
     const query = SentimentReport.find(filter).sort([['_id', order]]);
 
     return SentimentReport.find(filter).count().then(count => {

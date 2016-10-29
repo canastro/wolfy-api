@@ -12,7 +12,7 @@ const ConnectionType = require('../types/pagination/connection');
 const Cursor = require('../types/pagination/cursor');
 
 function getOrders({ symbol, first, last, before, after }, order) {
-    const filter = getFilter(before, after, order, { symbol });
+    const filter = getFilter(before, after, order, { symbol: symbol.toUpperCase() });
     const query = Order.find(filter).sort([['_id', order]]);
 
     return Order.find(filter).count().then(count => {
@@ -51,7 +51,7 @@ module.exports = {
             }
         },
         resolve(parent, args) {
-            return Order.find({ symbol: args.symbol }).exec().then((orders) => {
+            return Order.find({ symbol: args.symbol.toUpperCase() }).exec().then((orders) => {
                 return orders
                     .map((item) => item.type === 'BUY' ? item.value * -1 : item.value)
                     .reduce((prev, cur) => prev + cur, 0);
