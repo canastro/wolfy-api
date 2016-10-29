@@ -51,7 +51,8 @@ module.exports = {
             }
         },
         resolve(parent, args) {
-            return Order.find({ symbol: args.symbol.toUpperCase() }).exec().then((orders) => {
+            const filter = args.symbol ? { symbol: args.symbol.toUpperCase() } : {};
+            return Order.find(filter).exec().then((orders) => {
                 return orders
                     .map((item) => item.type === 'BUY' ? item.value * -1 : item.value)
                     .reduce((prev, cur) => prev + cur, 0);
