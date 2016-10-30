@@ -2,8 +2,6 @@ const {
     GraphQLObjectType,
     GraphQLInt,
     GraphQLString,
-    GraphQLList,
-    GraphQLNonNull
 } = require('graphql');
 
 const GraphQLDate = require('graphql-date');

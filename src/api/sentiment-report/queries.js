@@ -1,47 +1,55 @@
+const moment = require('moment');
 const {
     GraphQLString,
-    GraphQLInt
+    GraphQLList
 } = require('graphql');
 
 const SentimentReport = require('wolfy-models/src/schema/sentiment-report');
-
-const { getFilter, applyPagination } = require('../utils/pagination');
-const EdgeType = require('../types/pagination/edge');
-const ConnectionType = require('../types/pagination/connection');
-const Cursor = require('../types/pagination/cursor');
-
 const SentimentReportType = require('../types/reports/sentiment');
-
-function getReports({ symbol, type, first, last, before, after }, order) {
-    const filter = getFilter(before, after, order, { symbol: symbol.toUpperCase(), type });
-    const query = SentimentReport.find(filter).sort([['_id', order]]);
-
-    return SentimentReport.find(filter).count().then(count => {
-        const pageInfo = applyPagination(query, count, first, last);
-        return pageInfo.query.exec().then((results) => ({
-            query: results,
-            pageInfo: {
-                hasNextPage: pageInfo.hasNextPage,
-                hasPreviousPage: pageInfo.hasPreviousPage
-            }
-        }));
-    });
-}
-
-const ReportEdge = EdgeType('ReportEdge', SentimentReportType);
-const ReportConnection = ConnectionType('ReportConnection', ReportEdge);
+const getProjection = require('../utils/get-projection');
 
 module.exports = {
     sentimentreports: {
-        type: ReportConnection,
+        type: new GraphQLList(SentimentReportType),
         args: {
-            first: { type: GraphQLInt },
-            last: { type: GraphQLInt },
-            before: { type: Cursor },
-            after: { type: Cursor },
-            symbol: { type: GraphQLString },
-            type: { type: GraphQLString }
+            since: {
+                name: 'since',
+                type: GraphQLString
+            },
+            until: {
+                name: 'until',
+                type: GraphQLString
+            },
+            symbol: {
+                name: 'symbol',
+                type: GraphQLString
+            },
+            type: {
+                name: 'type',
+                type: GraphQLString
+            }
         },
-        resolve: (parent, args) => getReports(args, -1)
+        resolve(parent, args, context, info) {
+            const projection = getProjection(info);
+            const filter = {
+                symbol: args.symbol,
+                type: args.type
+            };
+            const dateFilter = {};
+
+            if (args.since) {
+                dateFilter['$gte'] = moment(+args.since).toDate().toISOString();
+            }
+
+            if (args.until) {
+                dateFilter['$lte'] = moment(+args.until).toDate().toISOString();
+            }
+
+            if (Object.keys(dateFilter)) {
+                filter.date = dateFilter;
+            }
+
+            return SentimentReport.find(filter).sort('date').select(projection).exec();
+        }
     }
 };
