@@ -1,6 +1,7 @@
 const {
     GraphQLInt,
-    GraphQLString
+    GraphQLString,
+    GraphQLList
 } = require('graphql');
 
 const Order = require('wolfy-models/src/schema/order');
@@ -41,6 +42,27 @@ module.exports = {
             symbol: { type: GraphQLString }
         },
         resolve: (parent, args) => getOrders(args, -1)
+    },
+    positions: {
+        type: new GraphQLList(OrderType),
+        args: {
+            symbol: {
+                name: 'symbol',
+                type: GraphQLString
+            }
+        },
+        resolve(parent, args) {
+            const baseFilter = {
+                isActive: true,
+                type: 'BUY'
+            };
+
+            const filter = args.symbol ?
+                Object.assign({ symbol: args.symbol.toUpperCase()}, baseFilter) :
+                baseFilter;
+
+            return Order.find(filter).exec();
+        }
     },
     balance: {
         type: GraphQLInt,
