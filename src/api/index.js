@@ -10,6 +10,7 @@ const PriceQueries = require('./price/queries');
 const StatisticsQueries = require('./statistics/queries');
 const TweetQueries = require('./tweet/queries');
 const ArticleQueries = require('./article/queries');
+const NetworkOutputQueries = require('./network-output/queries');
 
 const StockQueries = require('./stock/queries');
 const StockMutations = require('./stock/mutations');
@@ -22,7 +23,8 @@ const queries = Object.assign(
     StockQueries,
     PriceQueries,
     TweetQueries,
-    ArticleQueries
+    ArticleQueries,
+    NetworkOutputQueries
 );
 const mutations = Object.assign({}, StockMutations);
 
