@@ -5,7 +5,7 @@ const {
 } = require('graphql');
 
 const NetworkOutput = require('wolfy-models/src/schema/network-output');
-const NetworkOutputType = require('../types/stock');
+const NetworkOutputType = require('../types/network/output');
 const getProjection = require('../utils/get-projection');
 
 module.exports = {
