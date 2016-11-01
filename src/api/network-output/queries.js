@@ -41,7 +41,7 @@ module.exports = {
             }
 
             if (Object.keys(dateFilter)) {
-                filter.date = dateFilter;
+                filter.createdAt = dateFilter;
             }
 
             return NetworkOutput.find(filter).sort('date').select(projection).exec();
